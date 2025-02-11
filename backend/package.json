@@ -8,5 +8,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.3.1",
+    "pg": "^8.13.2",
+    "prisma": "^6.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
 }
