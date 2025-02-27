@@ -13,15 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Product {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())  // Changed from UUID to Int
   name        String
-  categoryId  String
-  brandId     String?
-  flavorId    String?
-  volumeId    String?
-  packSizeId  String?
+  categoryId  Int
+  brandId     Int?
+  flavorId    Int?
+  volumeId    Int?
+  packSizeId  Int?
   price       Float
   stock       Int
   category    Category @relation(fields: [categoryId], references: [id])
@@ -29,42 +28,42 @@ model Product {
   flavor      Flavor?   @relation(fields: [flavorId], references: [id])
   volume      Volume?   @relation(fields: [volumeId], references: [id])
   packSize    PackSize? @relation(fields: [packSizeId], references: [id])
-   orderItems  OrderItem[]
+  orderItems  OrderItem[]
 }
 
 model Category {
-  id       String   @id @default(uuid())
+  id       Int      @id @default(autoincrement())  // Changed
   name     String   @unique()
   products Product[]
 }
 
 model Brand {
-  id       String   @id @default(uuid())
+  id       Int      @id @default(autoincrement())  // Changed
   name     String   @unique()
   products Product[]
 }
 
 model Flavor {
-  id       String   @id @default(uuid())
+  id       Int      @id @default(autoincrement())  // Changed
   name     String   @unique()
   products Product[]
 }
 
 model Volume {
-  id       String   @id @default(uuid())
+  id       Int      @id @default(autoincrement())  // Changed
   name     String   @unique()
   products Product[]
 }
 
 model PackSize {
-  id   String @id @default(uuid())
-  name String @unique() // e.g., "Single Item", "12-pack", "24-pack"
+  id       Int      @id @default(autoincrement())  // Changed
+  name     String   @unique()
   products Product[]
 }
 
 model Order {
-  id           String   @id @default(uuid())
-  userId       String
+  id           Int      @id @default(autoincrement())  // Changed
+  userId       Int
   status       OrderStatus
   orderDate    DateTime @default(now())
   deliveryDate DateTime?
@@ -75,17 +74,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  quantity Int
+  id        Int     @id @default(autoincrement())  // Changed
+  orderId   Int
+  productId Int
+  quantity  Int
   price     Float
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 }
 
 model User {
-  id        String  @id @default(uuid())
+  id        Int     @id @default(autoincrement())  // Changed
   username  String  @unique
   email     String  @unique
   password  String

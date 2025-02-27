@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import productRoutes from './routes/productRoutes'; // ✅ Ensure correct import
+import metadataRoutes from './routes/metadataRoutes';
+
 
 const app = express();
 
@@ -10,6 +12,8 @@ app.use(cors());
 
 // ✅ Mount Routes
 app.use('/products', productRoutes);
+app.use('/api/metadata', metadataRoutes);
+
 
 // Sample route
 app.get('/', (req, res) => {
