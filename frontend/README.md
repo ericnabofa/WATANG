@@ -1,115 +1,54 @@
-# Project Setup Guide
+# React + TypeScript + Vite
 
-This guide provides step-by-step instructions to set up this repository locally on another laptop. Follow these steps to avoid common configuration hassles.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Prerequisites
-Ensure you have the following installed before proceeding:
+Currently, two official plugins are available:
 
-- **Node.js**: [Download Node.js](https://nodejs.org/en/download/)
-- **Astro**: [Astro Documentation](https://docs.astro.build/en/getting-started/)
-- **Tailwind CSS (v3)**: [Tailwind Installation Guide](https://tailwindcss.com/docs/installation)
-- **React**: [React Documentation](https://react.dev/)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Installation Steps
+## Expanding the ESLint configuration
 
-### 1️⃣ Clone the Repository
-```sh
-git clone <repository-url>
-cd <repository-folder>
-```
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-### 2️⃣ Install Dependencies
-Run the following command to install all required packages:
-```sh
-npm install
-```
-
-### 3️⃣ Start the Development Server
-```sh
-npm run dev
-```
-
-### 4️⃣ Open in Browser
-After running the development server, visit:
-```
-http://localhost:4321/
-```
-
-## Project Structure
-```
-├── src/
-│   ├── components/
-│   │   ├── Counter.jsx
-│   ├── pages/
-│   │   ├── index.astro
-│   ├── styles/
-│   │   ├── main.css
-├── astro.config.mjs
-├── package.json
-├── postcss.config.cjs
-├── tailwind.config.cjs
-├── tsconfig.json
-```
-
-## Key Configuration Files
-
-### **1️⃣ Astro Configuration (`astro.config.mjs`)**
 ```js
-import { defineConfig } from 'astro/config';
-import react from "@astrojs/react";
-import tailwind from "@astrojs/tailwind";
-
-export default defineConfig({
-    integrations: [react(), tailwind()],
-});
-```
-
-### **2️⃣ Tailwind CSS Configuration (`tailwind.config.cjs`)**
-```js
-module.exports = {
-  content: [
-    "./src/**/*.{html,js,astro}"
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
   ],
-  theme: {
-    extend: {},
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
   },
-  plugins: [],
-};
+})
 ```
 
-### **3️⃣ PostCSS Configuration (`postcss.config.cjs`)**
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
 ```js
-module.exports = {
-  plugins: [
-    require('tailwindcss'),
-    require('autoprefixer'),
-  ],
-};
-```
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### **4️⃣ Dependencies (`package.json`)**
-```json
-{
-  "dependencies": {
-    "@astrojs/react": "^4.2.0",
-    "@astrojs/tailwind": "^6.0.0",
-    "astro": "^5.2.5",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
   },
-  "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.1",
-    "tailwindcss": "^3.4.1"
-  }
-}
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
 ```
-
-## Troubleshooting
-- **If styles don’t apply**: Ensure Tailwind CSS is installed as v3.x and `@astrojs/tailwind` is included in `astro.config.mjs`.
-- **If React integration fails**: Verify that `@astrojs/react` is properly installed and included in `astro.config.mjs`.
-- **For TypeScript issues**: Check the `tsconfig.json` file and ensure `astro/tsconfigs/strict` is included.
-
----
-### 🎉 Now you’re all set up! Happy coding! 🚀
-
