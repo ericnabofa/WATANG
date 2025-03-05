@@ -67,7 +67,14 @@ router.get('/', async (req, res) => {
 
     // Fetch filtered, sorted, and paginated products
     const products = await prisma.product.findMany({
-      where: whereClause,
+      where: {
+        name: search ? { contains: search as string, mode: 'insensitive' } : undefined,
+        categoryId: categoryId ? Number(categoryId) : undefined,
+        brandId: brandId ? Number(brandId) : undefined,
+        flavorId: flavorId ? Number(flavorId) : undefined,
+        volumeId: volumeId ? Number(volumeId) : undefined,
+        packSizeId: packSizeId ? Number(packSizeId) : undefined,
+      },
       orderBy,
       skip,
       take: pageSize,
