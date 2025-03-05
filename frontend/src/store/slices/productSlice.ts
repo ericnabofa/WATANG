@@ -55,49 +55,47 @@ export const fetchProducts = createAsyncThunk(
         limit: pagination.pageSize,
       };
   
-      console.log('Fetching products with params:', params); // Debugging
-  
       const response = await api.get('/products', { params });
-      console.log('Response:', response.data); // Debugging
       return response.data;
     }
   );
 
 // Create the slice
 const productSlice = createSlice({
-  name: 'products',
-  initialState,
-  reducers: {
-    setSearchQuery: (state, action: PayloadAction<string>) => {
-      state.searchQuery = action.payload;
+    name: 'products',
+    initialState,
+    reducers: {
+      setSearchQuery: (state, action: PayloadAction<string>) => {
+        state.searchQuery = action.payload;
+      },
+      setSortOption: (state, action: PayloadAction<string>) => {
+        state.sortOption = action.payload;
+      },
+      setFilters: (state, action: PayloadAction<ProductState['filters']>) => {
+        state.filters = action.payload;
+      },
+      setCurrentPage: (state, action: PayloadAction<number>) => {
+        state.pagination.currentPage = action.payload;
+      },
     },
-    setSortOption: (state, action: PayloadAction<string>) => {
-      state.sortOption = action.payload;
+    extraReducers: (builder) => {
+      builder
+        .addCase(fetchProducts.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(fetchProducts.fulfilled, (state, action) => {
+          state.loading = false;
+          state.products = action.payload.products;
+          state.pagination.totalProducts = action.payload.totalProducts;
+        })
+        .addCase(fetchProducts.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.error.message || 'Failed to fetch products';
+        });
     },
-    setFilters: (state, action: PayloadAction<ProductState['filters']>) => {
-      state.filters = action.payload;
-    },
-    setPagination: (state, action: PayloadAction<ProductState['pagination']>) => {
-      state.pagination = action.payload;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchProducts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.products = action.payload.products;
-        state.pagination.totalProducts = action.payload.totalProducts;
-      })
-      .addCase(fetchProducts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch products';
-      });
-  },
-});
-
-export const { setSearchQuery, setSortOption, setFilters, setPagination } = productSlice.actions;
-export default productSlice.reducer;
+  });
+  
+  export const { setSearchQuery, setSortOption, setFilters, setCurrentPage } = productSlice.actions;
+  export default productSlice.reducer;
+  

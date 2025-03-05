@@ -2,15 +2,24 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from './store/slices/productSlice';
-import { RootState, AppDispatch } from './store/store'; // Import AppDispatch
+import { fetchMetadata } from './store/slices/metadataSlice';
+import { RootState, AppDispatch } from './store/store';
+import ProductList from './components/ProductList';
+import SearchBar from './components/SearchBar';
+import SortDropdown from './components/SortDropdown';
+import FilterSidebar from './components/FilterSidebar';
+import Pagination from './components/Pagination';
 
 const App: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>(); // Use AppDispatch here
-  const { products, loading, error } = useSelector((state: RootState) => state.products);
+  const dispatch = useDispatch<AppDispatch>();
+  const { products, loading, error, searchQuery, sortOption, filters, pagination } = useSelector(
+    (state: RootState) => state.products
+  );
 
   useEffect(() => {
-    dispatch(fetchProducts()); // Dispatch the async thunk
-  }, [dispatch]);
+    dispatch(fetchMetadata()); // Fetch metadata
+    dispatch(fetchProducts()); // Fetch products
+  }, [dispatch, searchQuery, sortOption, filters, pagination.currentPage]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -18,13 +27,11 @@ const App: React.FC = () => {
   return (
     <div>
       <h1>Products</h1>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            {product.name} - ${product.price}
-          </li>
-        ))}
-      </ul>
+      <SearchBar />
+      <SortDropdown />
+      <FilterSidebar />
+      <ProductList products={products} />
+      <Pagination />
     </div>
   );
 };
