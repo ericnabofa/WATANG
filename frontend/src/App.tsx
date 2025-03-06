@@ -5,10 +5,12 @@ import { fetchProducts } from './store/slices/productSlice';
 import { fetchMetadata } from './store/slices/metadataSlice';
 import { RootState, AppDispatch } from './store/store';
 import ProductList from './components/ProductList';
-import SearchBar from './components/SearchBar';
 import SortDropdown from './components/SortDropdown';
 import FilterSidebar from './components/FilterSidebar';
 import Pagination from './components/Pagination';
+import UtilityBar from './components/UtilityBar/UtilityBar';
+import Header from './components/Header/Header';
+import Hero from './components/Hero/Hero';
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,8 +28,10 @@ const App: React.FC = () => {
 
   return (
     <div>
+      <UtilityBar />
+      <Header />
+      <Hero />
       <h1>Products</h1>
-      <SearchBar />
       <SortDropdown />
       <FilterSidebar />
       <ProductList products={products} />

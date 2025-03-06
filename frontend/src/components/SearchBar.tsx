@@ -13,14 +13,33 @@ const SearchBar: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSearch}>
+    <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
       <input
         type="text"
         placeholder="Search products..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        style={{
+          padding: '8px',
+          borderRadius: '4px',
+          border: '1px solid #CCCCCC',
+          width: '200px',
+          marginRight: '10px',
+        }}
       />
-      <button type="submit">Search</button>
+      <button
+        type="submit"
+        style={{
+          padding: '8px 12px',
+          borderRadius: '4px',
+          border: 'none',
+          backgroundColor: '#003366',
+          color: '#FFFFFF',
+          cursor: 'pointer',
+        }}
+      >
+        Search
+      </button>
     </form>
   );
 };
