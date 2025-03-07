@@ -11,6 +11,7 @@ import Pagination from './components/Pagination';
 import UtilityBar from './components/UtilityBar/UtilityBar';
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
+import ProductCategories from './components/ProductCategories'; // Import the ProductCategories component
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,6 +32,7 @@ const App: React.FC = () => {
       <UtilityBar />
       <Header />
       <Hero />
+      <ProductCategories /> {/* Add the ProductCategories component */}
       <h1>Products</h1>
       <SortDropdown />
       <FilterSidebar />

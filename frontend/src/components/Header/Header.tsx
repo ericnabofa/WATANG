@@ -1,25 +1,100 @@
 // src/components/Header/Header.tsx
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import WATANglogo from '../../assets/WATA logo.png';
 import UserIcon from '../../assets/user-icon.svg';
 import CartIcon from '../../assets/cart-icon.svg';
+import SearchIcon from '../../assets/search-icon.svg'; // Import the search icon
 import SearchBar from '../SearchBar'; // Import the SearchBar component
+import styled from 'styled-components';
+
+// Styled components for responsive design
+const HeaderContainer = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+const Nav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+`;
+
+const DesktopSearch = styled.div`
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+`;
+
+const MobileSearchIcon = styled.button`
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: block;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+`;
+
+const MobileSearchContainer = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  right: 20px;
+  z-index: 10;
+  background-color: #FFFFFF;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+`;
+
+const CloseButton = styled.button`
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #003366;
+`;
 
 const Header: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false); // State for mobile search visibility
+  const searchInputRef = useRef<HTMLInputElement>(null); // Ref for the search input
+
+  // Focus on the search input when it becomes visible
+  useEffect(() => {
+    if (isMobileSearchVisible && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isMobileSearchVisible]);
 
   return (
-    <header style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '20px',
-      backgroundColor: '#FFFFFF', // White
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    }}>
+    <HeaderContainer>
       {/* Branding */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <img
@@ -33,8 +108,34 @@ const Header: React.FC = () => {
       </div>
 
       {/* Navigation Menu */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <SearchBar /> {/* Use the SearchBar component here */}
+      <Nav>
+        {/* SearchBar (visible on desktop) */}
+        <DesktopSearch>
+          <SearchBar />
+        </DesktopSearch>
+
+        {/* Mobile Search Icon (visible on mobile) */}
+        <MobileSearchIcon
+          onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)} // Toggle mobile search
+        >
+          <img
+            src={SearchIcon} // Path to the search icon
+            alt="Search"
+            style={{ height: '24px' }}
+          />
+        </MobileSearchIcon>
+
+        {/* Mobile Search Input (visible when toggled) */}
+        {isMobileSearchVisible && (
+          <MobileSearchContainer>
+            <SearchBar ref={searchInputRef} /> {/* Pass the ref to SearchBar */}
+            <CloseButton onClick={() => setIsMobileSearchVisible(false)}>
+              X
+            </CloseButton>
+          </MobileSearchContainer>
+        )}
+
+        {/* User Icon */}
         <button
           style={{
             backgroundColor: 'transparent',
@@ -48,6 +149,8 @@ const Header: React.FC = () => {
             style={{ height: '24px' }}
           />
         </button>
+
+        {/* Cart Icon */}
         <div style={{ position: 'relative' }}>
           <img
             src={CartIcon} // Replace with your cart icon path
@@ -71,8 +174,8 @@ const Header: React.FC = () => {
             </span>
           )}
         </div>
-      </nav>
-    </header>
+      </Nav>
+    </HeaderContainer>
   );
 };
 

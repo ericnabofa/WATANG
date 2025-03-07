@@ -1,9 +1,14 @@
 // src/components/SearchBar.tsx
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { setSearchQuery } from '../store/slices/productSlice';
+import SearchIcon from '../assets/search-icon.svg'; // Import the search icon
 
-const SearchBar: React.FC = () => {
+interface SearchBarProps {
+  ref?: React.Ref<HTMLInputElement>;
+}
+
+const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
   const [query, setQuery] = useState('');
   const dispatch = useDispatch();
 
@@ -19,6 +24,7 @@ const SearchBar: React.FC = () => {
         placeholder="Search products..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        ref={ref} // Forward the ref to the input element
         style={{
           padding: '8px',
           borderRadius: '4px',
@@ -38,10 +44,14 @@ const SearchBar: React.FC = () => {
           cursor: 'pointer',
         }}
       >
-        Search
+        <img
+          src={SearchIcon}
+          alt="Search"
+          style={{ height: '16px' }}
+        />
       </button>
     </form>
   );
-};
+});
 
 export default SearchBar;
