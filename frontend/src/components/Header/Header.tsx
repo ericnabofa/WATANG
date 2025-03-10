@@ -1,15 +1,15 @@
-// src/components/Header/Header.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import WATANglogo from '../../assets/WATA logo.png';
 import UserIcon from '../../assets/user-icon.svg';
 import CartIcon from '../../assets/cart-icon.svg';
-import SearchIcon from '../../assets/search-icon.svg'; // Import the search icon
-import SearchBar from '../SearchBar'; // Import the SearchBar component
+import SearchIcon from '../../assets/search-icon.svg';
+import SearchBar from '../SearchBar';
 import styled from 'styled-components';
 
-// Styled components for responsive design
+// Styled components (unchanged)
 const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
@@ -83,10 +83,10 @@ const CloseButton = styled.button`
 const Header: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false); // State for mobile search visibility
-  const searchInputRef = useRef<HTMLInputElement>(null); // Ref for the search input
+  const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  // Focus on the search input when it becomes visible
   useEffect(() => {
     if (isMobileSearchVisible && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -98,9 +98,10 @@ const Header: React.FC = () => {
       {/* Branding */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <img
-          src={WATANglogo} // Replace with your logo path
+          src={WATANglogo}
           alt="Company Logo"
-          style={{ height: '40px', marginRight: '10px' }}
+          style={{ height: '40px', marginRight: '10px', cursor: 'pointer' }}
+          onClick={() => navigate('/')} // Navigate to homepage on click
         />
         <span style={{ color: '#003366', fontSize: '18px', fontWeight: 'bold' }}>
           Ikeja
@@ -116,10 +117,10 @@ const Header: React.FC = () => {
 
         {/* Mobile Search Icon (visible on mobile) */}
         <MobileSearchIcon
-          onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)} // Toggle mobile search
+          onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)}
         >
           <img
-            src={SearchIcon} // Path to the search icon
+            src={SearchIcon}
             alt="Search"
             style={{ height: '24px' }}
           />
@@ -128,7 +129,7 @@ const Header: React.FC = () => {
         {/* Mobile Search Input (visible when toggled) */}
         {isMobileSearchVisible && (
           <MobileSearchContainer>
-            <SearchBar ref={searchInputRef} /> {/* Pass the ref to SearchBar */}
+            <SearchBar ref={searchInputRef} />
             <CloseButton onClick={() => setIsMobileSearchVisible(false)}>
               X
             </CloseButton>
@@ -144,7 +145,7 @@ const Header: React.FC = () => {
           }}
         >
           <img
-            src={UserIcon} // Path to the user favicon in the public directory
+            src={UserIcon}
             alt="User"
             style={{ height: '24px' }}
           />
@@ -153,7 +154,7 @@ const Header: React.FC = () => {
         {/* Cart Icon */}
         <div style={{ position: 'relative' }}>
           <img
-            src={CartIcon} // Replace with your cart icon path
+            src={CartIcon}
             alt="Cart"
             style={{ height: '24px', cursor: 'pointer' }}
           />
