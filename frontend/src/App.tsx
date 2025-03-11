@@ -11,6 +11,7 @@ import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
 import ProductCategories from './components/ProductCategories';
 import CategoryProducts from './components/CategoryProducts';
+import SingleProduct from './components/SingleProduct';
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,6 +47,8 @@ const App: React.FC = () => {
           />
           {/* Route for displaying all products in a specific category */}
           <Route path="/category/:categoryId/:categoryTitle" element={<CategoryProducts />} />
+          {/* New route for displaying a single product detail */}
+          <Route path="/product/:productId" element={<SingleProduct />} />
         </Routes>
       </div>
     </Router>

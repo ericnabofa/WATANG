@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import api from '../services/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 // Styled components (unchanged)
 const CategoriesContainer = styled.section`
@@ -342,15 +342,17 @@ interface Product {
                   }}
                 >
                   {visibleProducts.map((product) => (
+                    <Link key={product.id} to={`/product/${product.id}`}>
                     <ProductCard key={product.id}>
-                      <ProductImage src={product.image} alt={product.name} />
-                      <ProductTitle>{product.name}</ProductTitle>
-                      <ProductDescription>{product.description}</ProductDescription>
-                      <ProductPrice>{product.price}</ProductPrice>
+                    <ProductImage src={product.image} alt={product.name} />
+                    <ProductTitle>{product.name}</ProductTitle>
+                    <ProductDescription>{product.description}</ProductDescription>
+                    <ProductPrice>{product.price}</ProductPrice>
                       <AddToCartButton>
-                        Add to Cart <span>🛒</span>
+                      Add to Cart <span>🛒</span>
                       </AddToCartButton>
-                    </ProductCard>
+                  </ProductCard>
+                  </Link>
                   ))}
                 </ProductCarousel>
                 <RightArrow
