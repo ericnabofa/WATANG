@@ -5,8 +5,6 @@ import { fetchProducts } from './store/slices/productSlice';
 import { fetchMetadata } from './store/slices/metadataSlice';
 import { RootState, AppDispatch } from './store/store';
 import ProductList from './components/ProductList';
-import SortDropdown from './components/SortDropdown';
-import FilterSidebar from './components/FilterSidebar';
 import Pagination from './components/Pagination';
 import UtilityBar from './components/UtilityBar/UtilityBar';
 import Header from './components/Header/Header';
@@ -41,8 +39,6 @@ const App: React.FC = () => {
               <>
                 <ProductCategories />
                 <h1>Products</h1>
-                <SortDropdown />
-                <FilterSidebar />
                 <ProductList products={products} />
                 <Pagination />
               </>
