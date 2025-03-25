@@ -3,6 +3,11 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import api from '../services/api';
 import { FaShoppingCart } from 'react-icons/fa';
+import { AxiosResponse } from 'axios';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/slices/cartSlice'; // Import the Redux action
+import { Product, CartItem } from '../types/product'; 
+
 
 const ProductPageContainer = styled.div`
   max-width: 1200px;
@@ -127,66 +132,22 @@ const AddToCartButton = styled.button`
   }
 `;
 
-const ProductDescription = styled.p`
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 15px;
-`;
-
-const Accordion = styled.div`
-  margin-top: 20px;
-  background: #f7f7f7;
-  border-radius: 10px;
-  padding: 10px;
-`;
-
-const AccordionSection = styled.div`
-  border-bottom: 1px solid #ddd;
-  padding: 10px 0;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background-color: #f1f1f1;
-  }
-`;
-
-interface ChevronProps {
-  isOpen: boolean;
-}
-
-const Chevron = styled.span<ChevronProps>`
-  transform: rotate(${(props) => (props.isOpen ? '180deg' : '0')});
-  transition: transform 0.3s;
-`;
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  image: string;
-  details: string[];
-}
 
 const SingleProduct: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
+  const dispatch = useDispatch(); // Initialize Redux dispatch
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [isAccordionOpen, setAccordionOpen] = useState<boolean[]>(new Array(5).fill(false));
+  const [selectedImage, setSelectedImage] = useState<string>('');
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await api.get(`/products/${productId}`);
+        const response: AxiosResponse<Product> = await api.get(`/products/${productId}`);
         setProduct(response.data);
+        setSelectedImage(response.data.image || '/default-image.jpg');
       } catch (err) {
         setError('Failed to fetch product');
       } finally {
@@ -196,14 +157,21 @@ const SingleProduct: React.FC = () => {
     fetchProduct();
   }, [productId]);
 
-  const handleAccordionToggle = (index: number) => {
-    const newAccordionState = [...isAccordionOpen];
-    newAccordionState[index] = !newAccordionState[index];
-    setAccordionOpen(newAccordionState);
+  const handleAddToCart = () => {
+    if (product) {
+      const cartItem: CartItem = {
+        ...product,
+        quantity,
+      };
+  
+      dispatch(addToCart(cartItem));
+    }
   };
+  
+  
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error: {error} <button onClick={() => window.location.reload()}>Retry</button></div>;
   if (!product) return <div>Product not found</div>;
 
   return (
@@ -214,44 +182,42 @@ const SingleProduct: React.FC = () => {
       <ProductPageContainer>
         <ProductDetails>
           <ProductImageSection>
-            <ProductImage src={product.image || '/default-image.jpg'} alt={product.name || 'Product'} />
+            <ProductImage src={selectedImage} alt={product.name || 'Product'} />
             <ProductCarousel>
-              <Thumbnail src={product.image || '/default-thumbnail.jpg'} alt="Product thumbnail" />
-              {/* Add more thumbnails as necessary */}
-            </ProductCarousel>
+  {(product.images && product.images.length > 0 ? product.images : [product.image]).map((img: string, index: number) => (
+    <Thumbnail
+      key={index}
+      src={img}
+      alt={`Thumbnail ${index + 1}`}
+      onClick={() => setSelectedImage(img)}
+    />
+  ))}
+</ProductCarousel>
+
           </ProductImageSection>
           <ProductInfo>
             <ProductTitle>{product.name}</ProductTitle>
             <ProductPrice>{product.price}</ProductPrice>
-
             <QuantitySelector>
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-              <input type="number" value={quantity} readOnly />
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              />
               <button onClick={() => setQuantity(quantity + 1)}>+</button>
             </QuantitySelector>
-
             <SubscriptionDropdown>
               <option>One Time</option>
               <option>Every Week</option>
               <option>Every Month</option>
             </SubscriptionDropdown>
-
-            <AddToCartButton>
+            <AddToCartButton onClick={handleAddToCart}>
               <FaShoppingCart />
               Add to Cart
             </AddToCartButton>
-            <ProductDescription>{product.description}</ProductDescription>
           </ProductInfo>
         </ProductDetails>
-
-        <Accordion>
-          {(product.details || []).map((detail, index) => (
-            <AccordionSection key={index} onClick={() => handleAccordionToggle(index)}>
-              <span>{detail}</span>
-              <Chevron isOpen={isAccordionOpen[index]}>▼</Chevron>
-            </AccordionSection>
-          ))}
-        </Accordion>
       </ProductPageContainer>
     </>
   );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/slices/cartSlice'; // Import the addToCart action
 import api from '../services/api';
 import styled from 'styled-components';
 import SortDropdown from './SortDropdown';
@@ -125,82 +127,88 @@ const ClearButton = styled.button`
 
 
 const CategoryProducts: React.FC = () => {
-    const { categoryId, categoryTitle } = useParams<{ categoryId: string; categoryTitle: string }>();
-    const [products, setProducts] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [filters, setFilters] = useState<{ [key: string]: number }>({}); // State for filters
-    const [sortOption, setSortOption] = useState<string>(''); // State for sort option
+  const { categoryId, categoryTitle } = useParams<{ categoryId: string; categoryTitle: string }>();
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<{ [key: string]: number }>({}); // State for filters
+  const [sortOption, setSortOption] = useState<string>(''); // State for sort option
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await api.get('/products', {
-                    params: {
-                        categoryId: categoryId, // Fetch products for the specific category
-                        ...filters, // Include filters in the API call
-                        sort: sortOption, // Include sort option in the API call
-                    },
-                });
-                setProducts(response.data.products);
-            } catch (err) {
-                setError('Failed to fetch products');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const dispatch = useDispatch(); // Initialize useDispatch
 
-        fetchProducts();
-    }, [categoryId, filters, sortOption]); // Re-fetch products when filters or sort option change
-
-    const handleFilterChange = (newFilters: { [key: string]: number }) => {
-        setFilters(newFilters); // Update filters state
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get('/products', {
+          params: {
+            categoryId: categoryId, // Fetch products for the specific category
+            ...filters, // Include filters in the API call
+            sort: sortOption, // Include sort option in the API call
+          },
+        });
+        setProducts(response.data.products);
+      } catch (err) {
+        setError('Failed to fetch products');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleSortChange = (newSortOption: string) => {
-        setSortOption(newSortOption); // Update sort option state
-    };
+    fetchProducts();
+  }, [categoryId, filters, sortOption]); // Re-fetch products when filters or sort option change
 
-    const handleClearFilters = () => {
-        setFilters({}); // Clear all filters
-    };
+  const handleFilterChange = (newFilters: { [key: string]: number }) => {
+    setFilters(newFilters); // Update filters state
+  };
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+  const handleSortChange = (newSortOption: string) => {
+    setSortOption(newSortOption); // Update sort option state
+  };
 
-    return (
-        <div>
-            {/* Display the category name as the title */}
-            <CategoryTitle>{decodeURIComponent(categoryTitle || 'Category Products')}</CategoryTitle>
+  const handleClearFilters = () => {
+    setFilters({}); // Clear all filters
+  };
 
-            {/* Filters and SortDropdown */}
-            <FiltersContainer>
-                <FilterOptions>
-                    <FilterSidebar onFilterChange={handleFilterChange} /> {/* Pass filter handler */}
-                    <ClearButton onClick={handleClearFilters}>Clear Filters</ClearButton>
-                </FilterOptions>
-                <SortDropdown onSortChange={handleSortChange} /> {/* Pass sort handler */}
-            </FiltersContainer>
+  const handleAddToCart = (product: any) => {
+    dispatch(addToCart(product)); // Dispatch addToCart action
+  };
 
-            {/* Product cards */}
-            <ProductsContainer>
-                {products.map((product) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                        <ProductCard key={product.id}>
-                            <ProductImage src={product.image} alt={product.name} />
-                            <ProductTitle>{product.name}</ProductTitle>
-                            <ProductDescription>{product.description}</ProductDescription>
-                            <ProductPrice>{product.price}</ProductPrice>
-                            <AddToCartButton>
-                                Add to Cart <span>🛒</span>
-                            </AddToCartButton>
-                        </ProductCard>
-                    </Link>
-                ))}
-            </ProductsContainer>
-        </div>
-    );
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
+    <div>
+      {/* Display the category name as the title */}
+      <CategoryTitle>{decodeURIComponent(categoryTitle || 'Category Products')}</CategoryTitle>
+
+      {/* Filters and SortDropdown */}
+      <FiltersContainer>
+        <FilterOptions>
+          <FilterSidebar onFilterChange={handleFilterChange} /> {/* Pass filter handler */}
+          <ClearButton onClick={handleClearFilters}>Clear Filters</ClearButton>
+        </FilterOptions>
+        <SortDropdown onSortChange={handleSortChange} /> {/* Pass sort handler */}
+      </FiltersContainer>
+
+      {/* Product cards */}
+      <ProductsContainer>
+        {products.map((product) => (
+          <ProductCard key={product.id}>
+            <Link key={product.id} to={`/product/${product.id}`}>
+              <ProductImage src={product.image} alt={product.name} />
+              <ProductTitle>{product.name}</ProductTitle>
+              <ProductDescription>{product.description}</ProductDescription>
+              <ProductPrice>{product.price}</ProductPrice>
+            </Link>
+            <AddToCartButton onClick={() => handleAddToCart(product)}>
+              Add to Cart <span>🛒</span>
+            </AddToCartButton>
+          </ProductCard>
+        ))}
+      </ProductsContainer>
+    </div>
+  );
 };
 
 export default CategoryProducts;

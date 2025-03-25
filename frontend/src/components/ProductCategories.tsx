@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/slices/cartSlice'
 import styled from 'styled-components';
 import api from '../services/api';
 import { useSelector } from 'react-redux';
@@ -214,168 +216,175 @@ const Dot = styled.button<{ $active: boolean }>`
 `;
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: string;
-    image: string;
-  }
-  
-  interface Category {
-    id: number; // Add category ID
-    title: string;
-    products: Product[];
-  }
-  
-  const ProductCategories: React.FC = () => {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [currentPages, setCurrentPages] = useState<{ [key: string]: number }>({});
-    const carouselRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-    const navigate = useNavigate();
-  
-    const searchQuery = useSelector((state: RootState) => state.products.searchQuery);
-  
-    useEffect(() => {
-      const fetchCategories = async () => {
-        try {
-          const response = await api.get('/api/metadata/categorys');
-          const categoriesData = response.data;
-  
-          const categoriesWithProducts = await Promise.all(
-            categoriesData.map(async (category: any) => {
-              const productsResponse = await api.get('/products', {
-                params: { categoryId: category.id, search: searchQuery },
-              });
-              return {
-                id: category.id, // Include category ID
-                title: category.name,
-                products: productsResponse.data.products.map((product: any) => ({
-                  id: product.id,
-                  name: product.name,
-                  description: product.description || 'No description available',
-                  price: `₦${product.price}`,
-                  image: product.image || '/placeholder-image.jpg',
-                })),
-              };
-            })
-          );
-  
-          setCategories(categoriesWithProducts);
-          const initialPages = categoriesWithProducts.reduce((acc, category) => {
-            acc[category.title] = 0;
-            return acc;
-          }, {} as { [key: string]: number });
-          setCurrentPages(initialPages);
-        } catch (err) {
-          setError('Failed to fetch categories and products');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchCategories();
-    }, [searchQuery]);
-  
-    // Function to handle scrolling the carousel
-    const handleScroll = (categoryTitle: string, direction: 'left' | 'right') => {
-      const carousel = carouselRefs.current[categoryTitle];
-      if (carousel) {
-        const scrollAmount = direction === 'left' ? -200 : 200; // Adjust scroll amount as needed
-        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  
-        // Update the current page state
-        const newPage =
-          direction === 'left'
-            ? currentPages[categoryTitle] - 1
-            : currentPages[categoryTitle] + 1;
-        setCurrentPages((prev) => ({ ...prev, [categoryTitle]: newPage }));
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+}
+
+interface Category {
+  id: number; // Add category ID
+  title: string;
+  products: Product[];
+}
+
+const ProductCategories: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPages, setCurrentPages] = useState<{ [key: string]: number }>({});
+  const carouselRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const navigate = useNavigate();
+
+  const searchQuery = useSelector((state: RootState) => state.products.searchQuery);
+
+  const dispatch = useDispatch(); // Initialize useDispatch
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/api/metadata/categorys');
+        const categoriesData = response.data;
+
+        const categoriesWithProducts = await Promise.all(
+          categoriesData.map(async (category: any) => {
+            const productsResponse = await api.get('/products', {
+              params: { categoryId: category.id, search: searchQuery },
+            });
+            return {
+              id: category.id, // Include category ID
+              title: category.name,
+              products: productsResponse.data.products.map((product: any) => ({
+                id: product.id,
+                name: product.name,
+                description: product.description || 'No description available',
+                price: `₦${product.price}`,
+                image: product.image || '/placeholder-image.jpg',
+              })),
+            };
+          })
+        );
+
+        setCategories(categoriesWithProducts);
+        const initialPages = categoriesWithProducts.reduce((acc, category) => {
+          acc[category.title] = 0;
+          return acc;
+        }, {} as { [key: string]: number });
+        setCurrentPages(initialPages);
+      } catch (err) {
+        setError('Failed to fetch categories and products');
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
-  
-    // Function to handle pagination dot clicks
-    const handleDotClick = (categoryTitle: string, index: number) => {
-      const carousel = carouselRefs.current[categoryTitle];
-      if (carousel) {
-        const scrollAmount = index * 200; // Adjust scroll amount based on card width
-        carousel.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-        setCurrentPages((prev) => ({ ...prev, [categoryTitle]: index }));
-      }
-    };
-  
-    // Function to handle "View More" button clicks
-    const handleViewMore = (categoryId: number, categoryTitle: string) => {
-        navigate(`/category/${categoryId}/${encodeURIComponent(categoryTitle)}`); // Pass both categoryId and categoryTitle
-      };
-  
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
-  
-    return (
-      <CategoriesContainer>
-        {categories.map((category) => {
-          const productsPerPage = 5;
-          const totalPages = Math.ceil(category.products.length / productsPerPage);
-          const startIndex = currentPages[category.title] * productsPerPage;
-          const visibleProducts = category.products.slice(startIndex, startIndex + productsPerPage);
-  
-          return (
-            <CategoryWrapper key={category.title} id={category.title.toLowerCase().replace(/\s+/g, '-')}>
-              <CategoryHeader>{category.title}</CategoryHeader>
-              <ViewMoreButton onClick={() => handleViewMore(category.id, category.title)}>
-                View More →
-              </ViewMoreButton>
-              <CarouselContainer>
-                <LeftArrow
-                  onClick={() => handleScroll(category.title, 'left')}
-                  disabled={currentPages[category.title] === 0}
-                >
-                  &lt;
-                </LeftArrow>
-                <ProductCarousel
-                  ref={(el) => {
-                    if (el) {
-                      carouselRefs.current[category.title] = el;
-                    }
-                  }}
-                >
-                  {visibleProducts.map((product) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                    <ProductCard key={product.id}>
-                    <ProductImage src={product.image} alt={product.name} />
-                    <ProductTitle>{product.name}</ProductTitle>
-                    <ProductDescription>{product.description}</ProductDescription>
-                    <ProductPrice>{product.price}</ProductPrice>
-                      <AddToCartButton>
-                      Add to Cart <span>🛒</span>
-                      </AddToCartButton>
-                  </ProductCard>
-                  </Link>
-                  ))}
-                </ProductCarousel>
-                <RightArrow
-                  onClick={() => handleScroll(category.title, 'right')}
-                  disabled={currentPages[category.title] === totalPages - 1}
-                >
-                  &gt;
-                </RightArrow>
-              </CarouselContainer>
-              <PaginationDots>
-                {Array.from({ length: totalPages }).map((_, index) => (
-                  <Dot
-                    key={index}
-                    $active={index === currentPages[category.title]}
-                    onClick={() => handleDotClick(category.title, index)}
-                  />
-                ))}
-              </PaginationDots>
-            </CategoryWrapper>
-          );
-        })}
-      </CategoriesContainer>
-    );
+
+    fetchCategories();
+  }, [searchQuery]);
+
+  // Function to handle scrolling the carousel
+  const handleScroll = (categoryTitle: string, direction: 'left' | 'right') => {
+    const carousel = carouselRefs.current[categoryTitle];
+    if (carousel) {
+      const scrollAmount = direction === 'left' ? -200 : 200; // Adjust scroll amount as needed
+      carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+
+      // Update the current page state
+      const newPage =
+        direction === 'left'
+          ? currentPages[categoryTitle] - 1
+          : currentPages[categoryTitle] + 1;
+      setCurrentPages((prev) => ({ ...prev, [categoryTitle]: newPage }));
+    }
   };
-  
-  export default ProductCategories;
+
+  // Function to handle pagination dot clicks
+  const handleDotClick = (categoryTitle: string, index: number) => {
+    const carousel = carouselRefs.current[categoryTitle];
+    if (carousel) {
+      const scrollAmount = index * 200; // Adjust scroll amount based on card width
+      carousel.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+      setCurrentPages((prev) => ({ ...prev, [categoryTitle]: index }));
+    }
+  };
+
+  // Function to handle "View More" button clicks
+  const handleViewMore = (categoryId: number, categoryTitle: string) => {
+    navigate(`/category/${categoryId}/${encodeURIComponent(categoryTitle)}`); // Pass both categoryId and categoryTitle
+  };
+
+  const handleAddToCart = (product: any) => {
+    dispatch(addToCart(product)); // Dispatch addToCart action
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
+    <CategoriesContainer>
+      {categories.map((category) => {
+        const productsPerPage = 5;
+        const totalPages = Math.ceil(category.products.length / productsPerPage);
+        const startIndex = currentPages[category.title] * productsPerPage;
+        const visibleProducts = category.products.slice(startIndex, startIndex + productsPerPage);
+
+        return (
+          <CategoryWrapper key={category.title} id={category.title.toLowerCase().replace(/\s+/g, '-')}>
+            <CategoryHeader>{category.title}</CategoryHeader>
+            <ViewMoreButton onClick={() => handleViewMore(category.id, category.title)}>
+              View More →
+            </ViewMoreButton>
+            <CarouselContainer>
+              <LeftArrow
+                onClick={() => handleScroll(category.title, 'left')}
+                disabled={currentPages[category.title] === 0}
+              >
+                &lt;
+              </LeftArrow>
+              <ProductCarousel
+                ref={(el) => {
+                  if (el) {
+                    carouselRefs.current[category.title] = el;
+                  }
+                }}
+              >
+                {visibleProducts.map((product) => (
+                  <ProductCard key={product.id}>
+                    <Link key={product.id} to={`/product/${product.id}`}>
+                      <ProductImage src={product.image} alt={product.name} />
+                      <ProductTitle>{product.name}</ProductTitle>
+                      <ProductDescription>{product.description}</ProductDescription>
+                      <ProductPrice>{product.price}</ProductPrice>
+                    </Link>
+                    <AddToCartButton onClick={() => handleAddToCart(product)}>
+                      Add to Cart <span>🛒</span>
+                    </AddToCartButton>
+                  </ProductCard>
+                ))}
+              </ProductCarousel>
+              <RightArrow
+                onClick={() => handleScroll(category.title, 'right')}
+                disabled={currentPages[category.title] === totalPages - 1}
+              >
+                &gt;
+              </RightArrow>
+            </CarouselContainer>
+            <PaginationDots>
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <Dot
+                  key={index}
+                  $active={index === currentPages[category.title]}
+                  onClick={() => handleDotClick(category.title, index)}
+                />
+              ))}
+            </PaginationDots>
+          </CategoryWrapper>
+        );
+      })}
+    </CategoriesContainer>
+  );
+};
+
+export default ProductCategories;
