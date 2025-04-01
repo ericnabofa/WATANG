@@ -323,7 +323,7 @@ const ProductCategories: React.FC = () => {
       : product.price;
   
     // Create a standardized product structure
-    const cartItem = {
+    const cartItem: CartItem = {
       id: product.id,
       name: product.name,
       price: numericPrice, // Ensure it's a number
