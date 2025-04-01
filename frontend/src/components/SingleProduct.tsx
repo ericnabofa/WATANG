@@ -159,6 +159,7 @@ const SingleProduct: React.FC = () => {
 
   const handleAddToCart = () => {
     if (product) {
+      console.log("Adding to cart:", product); // Debugging
       const cartItem: CartItem = {
         ...product,
         quantity,

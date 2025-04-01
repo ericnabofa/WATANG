@@ -6,6 +6,7 @@ import api from '../services/api';
 import styled from 'styled-components';
 import SortDropdown from './SortDropdown';
 import FilterSidebar from './FilterSidebar';
+import { Product } from '../types/product';
 
 // Styled components (unchanged)
 const ProductCard = styled.div`
@@ -128,7 +129,7 @@ const ClearButton = styled.button`
 
 const CategoryProducts: React.FC = () => {
   const { categoryId, categoryTitle } = useParams<{ categoryId: string; categoryTitle: string }>();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<{ [key: string]: number }>({}); // State for filters
@@ -170,10 +171,11 @@ const CategoryProducts: React.FC = () => {
     setFilters({}); // Clear all filters
   };
 
-  const handleAddToCart = (product: any) => {
-    dispatch(addToCart(product)); // Dispatch addToCart action
+  const handleAddToCart = (product: Product) => {
+    console.log("Adding to cart:", product); // Debugging
+    const cartItem = { ...product, quantity: 1 }; // Ensure it has a quantity
+    dispatch(addToCart(cartItem)); // Dispatch addToCart action
   };
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -198,7 +200,7 @@ const CategoryProducts: React.FC = () => {
             <Link key={product.id} to={`/product/${product.id}`}>
               <ProductImage src={product.image} alt={product.name} />
               <ProductTitle>{product.name}</ProductTitle>
-              <ProductDescription>{product.description}</ProductDescription>
+              {/* <ProductDescription>{product.description}</ProductDescription> */}
               <ProductPrice>{product.price}</ProductPrice>
             </Link>
             <AddToCartButton onClick={() => handleAddToCart(product)}>

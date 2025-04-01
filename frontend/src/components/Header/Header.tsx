@@ -151,12 +151,12 @@ const Header: React.FC = () => {
           />
         </button>
 
-        {/* Cart Icon */}
-        <div style={{ position: 'relative' }}>
+        {/* Cart Icon with Navigation */}
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => navigate('/cart')}>
           <img
             src={CartIcon}
             alt="Cart"
-            style={{ height: '24px', cursor: 'pointer' }}
+            style={{ height: '24px' }}
           />
           {cartItemCount > 0 && (
             <span

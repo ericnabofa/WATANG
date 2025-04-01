@@ -6,6 +6,7 @@ import api from '../services/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { useNavigate, Link } from 'react-router-dom';
+import { Product as ProductType, CartItem } from '../types/product';
 
 // Styled components (unchanged)
 const CategoriesContainer = styled.section`
@@ -316,8 +317,31 @@ const ProductCategories: React.FC = () => {
   };
 
   const handleAddToCart = (product: any) => {
-    dispatch(addToCart(product)); // Dispatch addToCart action
+    // Ensure price is a number
+    const numericPrice = typeof product.price === "string" 
+      ? parseInt(product.price.replace(/\D/g, ""), 10) // Remove non-numeric chars
+      : product.price;
+  
+    // Create a standardized product structure
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: numericPrice, // Ensure it's a number
+      stock: product.stock || 1, // Default to 1 if missing
+      category: product.category || { id: 0, name: "Unknown" },
+      brand: product.brand || { id: 0, name: "Unknown" },
+      flavor: product.flavor || null,
+      volume: product.volume || null,
+      packSize: product.packSize || null,
+      image: product.image || "/placeholder-image.jpg", // Ensure image exists
+      quantity: 1, // Ensure quantity exists for cart functionality
+    };
+  
+    console.log("Adding to cart:", cartItem); // Debugging
+    dispatch(addToCart(cartItem));
   };
+  
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

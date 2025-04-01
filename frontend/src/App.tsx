@@ -12,6 +12,7 @@ import Hero from './components/Hero/Hero';
 import ProductCategories from './components/ProductCategories';
 import CategoryProducts from './components/CategoryProducts';
 import SingleProduct from './components/SingleProduct';
+import Cart from './components/Cart';
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -49,6 +50,8 @@ const App: React.FC = () => {
           <Route path="/category/:categoryId/:categoryTitle" element={<CategoryProducts />} />
           {/* New route for displaying a single product detail */}
           <Route path="/product/:productId" element={<SingleProduct />} />
+          {/* New route for cart page */}
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
     </Router>

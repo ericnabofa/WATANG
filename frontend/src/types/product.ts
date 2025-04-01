@@ -3,9 +3,9 @@
 export interface Product {
   id: number;
   name: string;
-  price: number;
-  stock: number;
-  category: {
+  price: string;
+  stock?: number;
+  category?: {
     id: number;
     name: string;
   };
