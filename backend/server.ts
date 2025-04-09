@@ -9,7 +9,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://185.113.249.229/:3000', // Replace with the frontend URL or IP
+  origin: 'http://185.113.249.229/:5173', // Replace with the frontend URL or IP
 }));
 
 // ✅ Mount Routes
