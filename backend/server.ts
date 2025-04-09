@@ -8,7 +8,9 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://185.113.249.229/:3000', // Replace with the frontend URL or IP
+}));
 
 // ✅ Mount Routes
 app.use('/products', productRoutes);
