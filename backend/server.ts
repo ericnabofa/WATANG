@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import productRoutes from './routes/productRoutes';
@@ -24,10 +24,9 @@ app.use('/products', productRoutes);
 app.use('/api/metadata', metadataRoutes);
 
 // Health check
-app.get('/', (req, res) => {
-  res.send('Hello from WataNG Backend!');
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello World');
 });
-
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
