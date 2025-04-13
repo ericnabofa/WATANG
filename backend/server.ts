@@ -5,8 +5,11 @@ import productRoutes from './routes/productRoutes';
 import metadataRoutes from './routes/metadataRoutes';
 
 // Load appropriate env file based on NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev';
-dotenv.config({ path: envFile });
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env.prod' });
+} else {
+  dotenv.config({ path: '.env.dev' });
+}
 
 const app = express();
 
