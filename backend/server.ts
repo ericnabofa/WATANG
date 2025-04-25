@@ -11,8 +11,9 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
 app.use(cors({
-  origin: 'watang.vercel.app', // ✅ Adjust as needed
+  origin: ['https://watang.vercel.app', 'http://localhost:5173'], // include both dev + prod
 }));
 
 // Routes
